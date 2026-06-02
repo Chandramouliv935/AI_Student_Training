@@ -187,11 +187,11 @@ Our system uses a multi-layered approach:
 
 ## 📸 Platform Preview
 
-| Smart Job Matching | Dashboard Analytics |
-| :---: | :---: |
-| ![Job Match](https://github.com/user-attachments/assets/306b6be4-dcc7-4d40-9774-d6ffc2648876) | ![Dashboard](https://github.com/user-attachments/assets/bfa8a4fd-b2a7-466a-a803-2282855ec689) |
+<img width="1919" height="902" alt="Screenshot 2026-06-02 163921" src="https://github.com/user-attachments/assets/3b8f2961-57a4-4962-a852-6ac0ec6d545e" />
 
----
+
+<img width="1919" height="903" alt="Screenshot 2026-06-02 163944" src="https://github.com/user-attachments/assets/0c052a08-cca3-42f9-aeac-d75187c0d8c4" />
+
 
 ## 👨‍💻 Author & Contributions
 
