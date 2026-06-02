@@ -8,7 +8,11 @@ import json
 import os
 
 # Load environment variables
-load_dotenv()
+import os
+from dotenv import load_dotenv
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.join(BASE_DIR, '..', '.env')
+load_dotenv(dotenv_path=env_path)
 
 app = FastAPI()
 

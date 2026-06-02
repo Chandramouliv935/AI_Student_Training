@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Lock, Star, Sparkles, ChevronRight, Target, Map, Code, Database, Shield, Cloud, BrainCircuit, X, Play, MessageSquare, UserCheck, RefreshCw } from './ui/Icons';
+import { Check, Lock, Star, Sparkles, ChevronRight, Target, Map, Code, Database, Shield, Cloud, BrainCircuit, X, Play, MessageSquare, UserCheck, RefreshCw, ArrowRight } from './ui/Icons';
 import { TrainingModule } from '../types';
 import SkillTest from './SkillTest';
 import CareerRoadmap from './CareerRoadmap';
@@ -7,9 +7,10 @@ import AptitudeTest from './AptitudeTest';
 import CommunicationTest from './CommunicationTest';
 import HrRound from './HrRound';
 import CareerChatbot from './CareerChatbot';
-
-
-// --- Types ---
+import Button from './ui/Button';
+import Modal from './ui/Modal';
+import Card from './ui/Card';
+import Badge from './ui/Badge';
 
 const careerPaths = [
     { id: 'swe', title: 'Software Engineer', subtitle: 'Backend / Full-Stack', icon: Code },
@@ -18,8 +19,6 @@ const careerPaths = [
     { id: 'cloud', title: 'Cloud / DevOps Engineer', subtitle: 'Infrastructure & scale', icon: Cloud },
     { id: 'ai', title: 'AI / Machine Learning Engineer', subtitle: 'Build intelligent systems', icon: BrainCircuit },
 ];
-
-// --- Sub-components ---
 
 const LevelNode: React.FC<{ module: TrainingModule; index: number; onClick: () => void; }> = ({ module, index, onClick }) => {
   const isCompleted = module.status === 'completed';
@@ -30,7 +29,6 @@ const LevelNode: React.FC<{ module: TrainingModule; index: number; onClick: () =
 
   const cardDelay = 0.5 + index * 0.2;
 
-  // Positioning logic
   let containerStyle: React.CSSProperties = {
     top: module.topPos,
     animation: `popIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${cardDelay}s forwards`,
@@ -41,13 +39,10 @@ const LevelNode: React.FC<{ module: TrainingModule; index: number; onClick: () =
   let containerClass = 'absolute -translate-y-1/2 flex items-center group';
   
   if (isGoal) {
-    // Goal: Span full width and center using layout structure
     containerClass += ' left-0 w-full justify-center';
   } else if (isLeft) {
-    // Left side nodes: right edge of card at 320px from left (center is 400, branch is 80)
     containerClass += ' right-[480px] text-left';
   } else { 
-    // Right side nodes: left edge of card at 480px from left
     containerClass += ' left-[480px] text-left';
   }
   
@@ -56,7 +51,7 @@ const LevelNode: React.FC<{ module: TrainingModule; index: number; onClick: () =
         case 'communication': return <MessageSquare className="w-6 h-6"/>;
         case 'hr_round': return <UserCheck className="w-6 h-6" />;
         default: 
-            if (isGoal) return <Target className="w-7 h-7" />;
+            if (isGoal) return <Target className="w-8 h-8" />;
             if (isCompleted) return <Check className="w-6 h-6" strokeWidth={3} />;
             if (isActive) return <Star className="w-6 h-6 animate-spin-slow" strokeWidth={0} fill="currentColor" />;
             return <Lock className="w-5 h-5" />;
@@ -69,51 +64,50 @@ const LevelNode: React.FC<{ module: TrainingModule; index: number; onClick: () =
         onClick={isActive ? onClick : undefined}
         disabled={!isActive && !isGoal}
         className={`
-          relative transition-all duration-300 bg-white group-hover:scale-[1.02] active:scale-[0.98]
+          relative transition-all duration-500 bg-white dark:bg-neutral-900 group-hover:scale-[1.05] active:scale-[0.95]
           ${isGoal 
-            ? 'flex flex-col items-center justify-center text-center p-6 rounded-2xl min-w-[280px] border border-gray-200 shadow-xl shadow-gray-200/40 mt-14' 
-            : 'flex items-center gap-4 p-4 rounded-2xl min-w-[240px]'
+            ? 'flex flex-col items-center justify-center text-center p-10 rounded-[2.5rem] min-w-[320px] border-2 border-neutral-100 dark:border-neutral-800 shadow-2xl shadow-neutral-200/40 dark:shadow-black/50 mt-16 scale-110' 
+            : 'flex items-center gap-6 p-5 rounded-3xl min-w-[260px]'
           }
           ${isActive && !isGoal 
-            ? 'shadow-lg shadow-violet-500/20 border-2 border-violet-200 cursor-pointer' 
+            ? 'shadow-2xl shadow-primary-500/30 border-2 border-primary-500 cursor-pointer ring-4 ring-primary-500/10' 
             : isCompleted && !isGoal 
-              ? 'shadow-md shadow-gray-200/50 border border-gray-100' 
+              ? 'shadow-xl shadow-neutral-200/50 dark:shadow-black/20 border-2 border-success-500/30' 
               : isLocked && !isGoal 
-                ? 'shadow-sm border border-gray-100 opacity-70'
-                : '' 
+                ? 'shadow-sm border border-neutral-100 dark:border-neutral-800 opacity-60 grayscale scale-95'
+                : 'border-2 border-neutral-100 dark:border-neutral-800' 
           }
         `}
         aria-label={module.title}
       >
-        {/* Active Ripple Effect (Non-Goal) */}
         {isActive && !isGoal && (
-          <div className="absolute inset-0 rounded-2xl animate-ping-slow bg-violet-400/20 -z-10"></div>
+          <div className="absolute inset-0 rounded-3xl animate-ping-slow bg-primary-500/20 -z-10"></div>
         )}
 
-        {/* Icon Box */}
         <div className={`
-          flex items-center justify-center shrink-0 rounded-xl transition-colors
-          ${isGoal ? 'w-14 h-14 mb-3 bg-gray-50 text-gray-600 border border-gray-100' : 'w-12 h-12 text-white'}
-          ${isActive && !isGoal ? 'bg-violet-600' : ''}
-          ${isCompleted && !isGoal ? 'bg-emerald-500' : ''}
-          ${isLocked && !isGoal ? 'bg-gray-100 text-gray-400' : ''}
+          flex items-center justify-center shrink-0 rounded-2xl transition-all duration-500 shadow-lg
+          ${isGoal ? 'w-20 h-20 mb-6 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transform group-hover:rotate-12' : 'w-14 h-14 text-white transform group-hover:rotate-6'}
+          ${isActive && !isGoal ? 'bg-primary-600 shadow-primary-500/40' : ''}
+          ${isCompleted && !isGoal ? 'bg-success-600 shadow-success-500/40' : ''}
+          ${isLocked && !isGoal ? 'bg-neutral-200 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-600 shadow-none' : ''}
         `}>
            {getModuleIcon()}
         </div>
 
-        {/* Text Content */}
         <div className={`flex flex-col ${isGoal ? 'items-center' : ''}`}>
-          <h3 className={`font-bold tracking-tight ${isGoal ? 'text-xl text-gray-900 mb-0.5' : 'text-sm text-gray-800'}`}>
+          <h3 className={`font-black tracking-tight leading-none ${isGoal ? 'text-3xl text-neutral-900 dark:text-white mb-2' : 'text-lg text-neutral-900 dark:text-white'}`}>
             {module.title}
           </h3>
-          <p className={`font-medium text-gray-500 ${isGoal ? 'text-sm' : 'text-xs mt-0.5'}`}>
+          <p className={`font-bold text-neutral-500 dark:text-neutral-400 ${isGoal ? 'text-lg opacity-60' : 'text-[11px] mt-1 uppercase tracking-widest'}`}>
             {module.subtitle}
           </p>
+          {isCompleted && !isGoal && (
+              <Badge variant="success" className="mt-2 w-fit text-[9px] font-black tracking-[0.1em]">MASTERED</Badge>
+          )}
         </div>
 
-        {/* Chevron for Standard Active Nodes */}
         {!isLocked && !isGoal && !isCompleted && (
-          <ChevronRight className="w-5 h-5 ml-auto text-violet-400" />
+          <ChevronRight className="w-6 h-6 ml-auto text-primary-500 group-hover:translate-x-1 transition-transform" />
         )}
       </button>
     </div>
@@ -122,83 +116,87 @@ const LevelNode: React.FC<{ module: TrainingModule; index: number; onClick: () =
 
 
 const RoadmapScreen: React.FC<{ modules: TrainingModule[], onModuleClick: (moduleId: string) => void, animateToModuleId: string | null }> = ({ modules, onModuleClick, animateToModuleId }) => (
-  <div className="relative w-[800px] h-[900px] mx-auto mt-8 animate-fade-in mb-12">
-    {/* SVG Layer for Lines */}
+  <div className="relative w-[800px] h-[1000px] mx-auto mt-12 animate-fade-in mb-32">
     <svg 
-      className="absolute top-0 left-0 w-full h-full pointer-events-none" 
-      viewBox="0 0 800 900" 
+      className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible" 
+      viewBox="0 0 800 1000" 
       preserveAspectRatio="none"
     >
       <defs>
         <linearGradient id="lightPulseGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0" />
-            <stop offset="50%" stopColor="#c4b5fd" stopOpacity="1" />
-            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0" />
+            <stop offset="50%" stopColor="#93c5fd" stopOpacity="1" />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
         </linearGradient>
+        <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
       </defs>
 
-      {/* Central Vertical Timeline Line */}
       <line 
-        x1="400" y1="0" x2="400" y2="900" 
-        stroke="#e2e8f0" 
-        strokeWidth="2" 
+        x1="400" y1="0" x2="400" y2="1000" 
+        stroke="currentColor" 
+        strokeWidth="3" 
         strokeLinecap="round"
-        strokeDasharray="4 6" 
+        strokeDasharray="1 15" 
+        className="text-neutral-200 dark:text-neutral-800"
       />
       
-      {/* Branches and Central Dots */}
       {modules.map((mod, i) => {
         const isGoal = mod.id === 'goal';
         const topPercent = parseFloat(mod.topPos);
-        const y = (topPercent / 100) * 900;
+        const y = (topPercent / 100) * 1000;
         const isLeft = mod.side === 'left';
         
-        const horizontalLineLength = 80; 
+        const horizontalLineLength = 100; 
         const branchX = isLeft ? 400 - horizontalLineLength : 400 + horizontalLineLength;
         
         const isUnlocked = mod.status !== 'locked' || isGoal;
-        const strokeColor = isUnlocked ? '#a78bfa' : '#cbd5e1'; 
+        const strokeColor = isUnlocked ? (mod.status === 'completed' ? '#10b981' : '#3b82f6') : 'currentColor'; 
 
         return (
           <g key={`module-graphic-${mod.id}`}>
-            {/* Connection Point on Timeline (Non-Goal) */}
             {!isGoal && (
-              <circle 
-                cx="400" cy={y} r="5"
+               <circle 
+                cx="400" cy={y} r="8"
                 fill="white" 
                 stroke={strokeColor}
-                strokeWidth="2" 
-                className="animate-pop-in-sm" 
+                strokeWidth="4" 
+                className={`animate-pop-in-sm ${!isUnlocked ? 'text-neutral-200 dark:text-neutral-800' : ''}`}
                 style={{animationDelay: `${i * 0.15}s`, opacity: 0}} 
+                filter={isUnlocked ? 'url(#glow)' : ''}
               />
             )}
 
-             {/* Side Branch Lines */}
             {!isGoal && (
-              <line 
-                x1="400" y1={y} x2={branchX} y2={y}
+              <path 
+                d={`M 400 ${y} L ${branchX} ${y}`}
                 stroke={strokeColor}
-                strokeWidth="2"
-                className="animate-draw-branch"
+                strokeWidth="4"
+                strokeLinecap="round"
+                fill="none"
+                className={`animate-draw-branch ${!isUnlocked ? 'text-neutral-200 dark:text-neutral-800 opacity-30' : ''}`}
                 style={{ animationDelay: `${0.2 + i * 0.15}s` }}
               />
             )}
             
-            {/* Goal Vertical Connection Anchor */}
             {isGoal && (
                <circle 
-                cx="400" cy={y - 50} r="4" 
-                fill="#cbd5e1"
-                className="animate-pop-in-sm"
+                cx="400" cy={y - 80} r="6" 
+                fill="#d1d5db"
+                className="animate-pop-in-sm opacity-30"
                />
             )}
             
-            {/* Active Path Pulse */}
             {animateToModuleId === mod.id && !isGoal && (
                 <line
                     x1="400" y1={y} x2={branchX} y2={y}
                     stroke="url(#lightPulseGradient)"
-                    strokeWidth="4"
+                    strokeWidth="6"
                     strokeLinecap="round"
                     className="animate-light-pulse"
                     style={{ transform: isLeft ? 'scaleX(-1)' : 'scaleX(1)', transformOrigin: isLeft ? 'right' : 'left' }}
@@ -209,7 +207,6 @@ const RoadmapScreen: React.FC<{ modules: TrainingModule[], onModuleClick: (modul
       })}
     </svg>
 
-    {/* Nodes Layer */}
     <div className="relative z-10 w-full h-full">
       {modules.map((module, index) => (
         <LevelNode key={module.id} module={module} index={index} onClick={() => onModuleClick(module.id)} />
@@ -219,29 +216,30 @@ const RoadmapScreen: React.FC<{ modules: TrainingModule[], onModuleClick: (modul
 );
 
 const IntroScreen: React.FC<{onStart: () => void}> = ({ onStart }) => (
-  <div className="h-[80vh] flex flex-col items-center justify-center text-center p-4 animate-fade-in">
-    <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mb-6">
-      <Map className="w-8 h-8 text-violet-600" />
+  <div className="h-[80vh] flex flex-col items-center justify-center text-center p-8 animate-fade-in">
+    <div className="w-24 h-24 bg-primary-600 rounded-[2.5rem] flex items-center justify-center mb-10 shadow-2xl shadow-primary-500/40 transform -rotate-12">
+      <Map className="w-12 h-12 text-white" />
     </div>
-    <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Your Path to Excellence</h1>
-    <p className="max-w-xl mt-4 text-gray-500 text-lg font-medium leading-relaxed">
-      A personalized, step-by-step roadmap designed to transform your potential into a successful career in engineering.
+    <h1 className="text-6xl font-black text-neutral-900 dark:text-white tracking-tight leading-[0.95] mb-6">
+        Forge Your <br/> <span className="text-primary-600">Cognitive Path</span>
+    </h1>
+    <p className="max-w-2xl text-neutral-500 dark:text-neutral-400 text-xl font-bold leading-relaxed">
+      A surgical, step-by-step roadmap architecture designed to scale your technical potential into professional mastery.
     </p>
-    <button
+    <Button
       onClick={onStart}
-      className="mt-10 flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-4 px-8 rounded-2xl transition-all shadow-xl shadow-primary-600/30 active:scale-[0.98]"
+      size="lg"
+      className="mt-14 py-6 px-12 text-xl font-black rounded-[2rem] shadow-2xl shadow-primary-600/30 group"
+      rightIcon={<ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />}
     >
-      Begin Journey
-      <ChevronRight className="w-5 h-5" />
-    </button>
+      Initiate Sequence
+    </Button>
   </div>
 );
 
 const CareerSelectionModal: React.FC<{ isOpen: boolean; onClose: () => void; onConfirm: (pathId: string, pathTitle: string) => void; }> = ({ isOpen, onClose, onConfirm }) => {
     const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
-    if (!isOpen) return null;
-    
     const handleConfirm = () => {
         if (selectedPath) {
             const path = careerPaths.find(p => p.id === selectedPath);
@@ -252,54 +250,55 @@ const CareerSelectionModal: React.FC<{ isOpen: boolean; onClose: () => void; onC
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fade-in-fast">
-            <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-4xl w-full m-4 animate-pop-in-sm text-center">
-                <div className="flex justify-between items-center mb-8">
-                    <div className="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center">
-                        <Target className="w-8 h-8 text-violet-600" />
-                    </div>
-                    <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
-                        <X className="w-6 h-6" />
+        <Modal
+          isOpen={isOpen}
+          onClose={onClose}
+          title="Vector Selection"
+          footer={
+            <Button
+              onClick={handleConfirm}
+              disabled={!selectedPath}
+              className="w-full py-4 text-lg font-black"
+              size="lg"
+              rightIcon={<Play className="w-5 h-5" />}
+            >
+              Start Core Diagnostic
+            </Button>
+          }
+        >
+          <p className="text-neutral-500 dark:text-neutral-400 font-bold mb-8">
+            Identify your target domain. Our systems will calibrate the roadmap to your choice.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {careerPaths.map(path => {
+                const isSelected = selectedPath === path.id;
+                return (
+                    <button
+                      key={path.id}
+                      onClick={() => setSelectedPath(path.id)}
+                      className={`group p-6 rounded-[1.5rem] border-2 text-left transition-all duration-500 relative overflow-hidden ${
+                        isSelected 
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10 shadow-xl shadow-primary-500/10 scale-105' 
+                        : 'border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-neutral-200 dark:hover:border-neutral-700'
+                      }`}
+                    >
+                        {isSelected && (
+                            <div className="absolute top-4 right-4 text-primary-500 animate-pop-in-sm">
+                                <Check className="w-5 h-5" strokeWidth={4} />
+                            </div>
+                        )}
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isSelected ? 'bg-primary-600 text-white transform rotate-12' : 'bg-neutral-50 dark:bg-neutral-800 text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white'}`}>
+                                <path.icon className="w-6 h-6" />
+                            </div>
+                            <span className={`font-black tracking-tight ${isSelected ? 'text-primary-900 dark:text-primary-100' : 'text-neutral-800 dark:text-neutral-200'}`}>{path.title}</span>
+                        </div>
+                        <p className={`text-xs font-bold leading-relaxed ${isSelected ? 'text-primary-700 dark:text-primary-300' : 'text-neutral-500 dark:text-neutral-400'}`}>{path.subtitle}</p>
                     </button>
-                </div>
-                <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Select Your Career Path</h2>
-                <p className="max-w-xl mt-3 text-gray-500 text-lg font-medium mx-auto">
-                    Choose the direction that excites you most. We'll tailor everything to help you succeed.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10 w-full">
-                    {careerPaths.map(path => {
-                        const isSelected = selectedPath === path.id;
-                        return (
-                            <button
-                                key={path.id}
-                                onClick={() => setSelectedPath(path.id)}
-                                className={`p-6 rounded-2xl border-2 text-left transition-all duration-300 ${
-                                    isSelected 
-                                    ? 'border-primary-500 bg-primary-50 shadow-lg shadow-primary-500/10' 
-                                    : 'border-gray-100 bg-white hover:border-gray-200 hover:shadow-md'
-                                }`}
-                            >
-                                <div className="flex items-center gap-4 mb-3">
-                                    <div className={`p-3 rounded-xl ${isSelected ? 'bg-primary-600 text-white' : 'bg-gray-50 text-gray-400'}`}>
-                                        <path.icon className="w-6 h-6" />
-                                    </div>
-                                    <span className={`font-bold text-lg ${isSelected ? 'text-primary-900' : 'text-gray-800'}`}>{path.title}</span>
-                                </div>
-                                <p className="text-sm text-gray-500 leading-relaxed">{path.subtitle}</p>
-                            </button>
-                        )
-                    })}
-                </div>
-                <button
-                    onClick={handleConfirm}
-                    disabled={!selectedPath}
-                    className="mt-12 flex items-center justify-center w-full max-w-sm mx-auto gap-3 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-xl shadow-primary-600/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    Start Skill Test
-                    <Play className="w-5 h-5" />
-                </button>
-            </div>
-        </div>
+                )
+            })}
+          </div>
+        </Modal>
     );
 };
 
@@ -393,11 +392,10 @@ const TrainingMode: React.FC<TrainingModeProps> = ({ modules, selectedCareer, on
   };
 
   return (
-    <div className="relative w-full overflow-x-auto no-scrollbar pb-20">
-      {/* Background Aesthetic */}
+    <div className="relative w-full overflow-x-auto no-scrollbar pb-24">
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden min-w-[800px]">
-        <div className="absolute top-0 left-0 w-2/3 h-1/2 bg-gradient-to-br from-violet-50/50 to-transparent blur-[120px]"></div>
-        <div className="absolute bottom-0 right-0 w-2/3 h-1/2 bg-gradient-to-tl from-sky-50/50 to-transparent blur-[120px]"></div>
+        <div className="absolute top-0 left-0 w-2/3 h-1/2 bg-gradient-to-br from-primary-500/10 dark:from-primary-600/5 to-transparent blur-[160px]"></div>
+        <div className="absolute bottom-0 right-0 w-2/3 h-1/2 bg-gradient-to-tl from-secondary-500/10 dark:from-secondary-600/5 to-transparent blur-[160px]"></div>
       </div>
       
       {showIntro && !anyTestActive ? (
@@ -433,9 +431,9 @@ const TrainingMode: React.FC<TrainingModeProps> = ({ modules, selectedCareer, on
         />
       )}
       
-      {/* Reset Button */}
       {!showIntro && !anyTestActive && (
-          <button
+          <Button
+            variant="ghost"
             onClick={() => {
                 if (window.confirm("Are you sure you want to reset your progress? This cannot be undone.")) {
                     onReset();
@@ -443,12 +441,11 @@ const TrainingMode: React.FC<TrainingModeProps> = ({ modules, selectedCareer, on
                     setAnimateToModuleId(null);
                 }
             }}
-            className="absolute top-4 right-4 z-50 flex items-center gap-2 p-2 px-4 bg-white/80 hover:bg-white backdrop-blur-sm rounded-lg shadow-md text-gray-500 hover:text-red-500 transition-colors font-medium border border-gray-100"
-            title="Reset Progress"
+            className="absolute top-4 right-8 z-50 flex items-center gap-3 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md shadow-2xl border-2 border-neutral-100 dark:border-neutral-800 rounded-2xl py-3 px-6 text-neutral-500 dark:text-neutral-400 font-extrabold hover:text-error-600 dark:hover:text-error-500 transition-all hover:scale-105 active:scale-95"
           >
             <RefreshCw className="w-4 h-4" />
-            <span>Reset</span>
-          </button>
+            <span>Reset Map</span>
+          </Button>
       )}
       
       {isAptitudeTestActive && (
@@ -471,10 +468,9 @@ const TrainingMode: React.FC<TrainingModeProps> = ({ modules, selectedCareer, on
 
       <CareerChatbot />
 
-      
       <style>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(40px); }
           to { opacity: 1; transform: translateY(0); }
         }
         
@@ -493,22 +489,22 @@ const TrainingMode: React.FC<TrainingModeProps> = ({ modules, selectedCareer, on
         }
 
         @keyframes popIn {
-          0% { opacity: 0; transform: translateY(-40%) scale(0.95); }
+          0% { opacity: 0; transform: translateY(-30%) scale(0.9); }
           100% { opacity: 1; transform: translateY(-50%) scale(1); }
         }
         
         @keyframes popInSm {
-          0% { opacity: 0; transform: scale(0.85); }
+          0% { opacity: 0; transform: scale(0.7); }
           100% { opacity: 1; transform: scale(1); }
         }
 
         .animate-pop-in-sm {
-           animation: popInSm 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+           animation: popInSm 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
         
         @keyframes pingSlow {
-          0% { transform: scale(1); opacity: 0.4; }
-          100% { transform: scale(1.3); opacity: 0; }
+          0% { transform: scale(1); opacity: 0.6; }
+          100% { transform: scale(1.5); opacity: 0; }
         }
 
         @keyframes spinSlow {
@@ -517,23 +513,23 @@ const TrainingMode: React.FC<TrainingModeProps> = ({ modules, selectedCareer, on
         }
 
         @keyframes lightPulse {
-          0% { stroke-dashoffset: 120; opacity: 0; }
+          0% { stroke-dashoffset: 240; opacity: 0; }
           20% { opacity: 1; }
           80% { opacity: 1; }
-          100% { stroke-dashoffset: -120; opacity: 0; }
+          100% { stroke-dashoffset: -240; opacity: 0; }
         }
 
         .animate-light-pulse {
-          stroke-dasharray: 40 120;
-          animation: lightPulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          stroke-dasharray: 80 240;
+          animation: lightPulse 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         .animate-fade-in {
-          animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animate-draw-branch {
-          animation: drawBranch 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: drawBranch 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         
         .animate-ping-slow {
@@ -541,7 +537,7 @@ const TrainingMode: React.FC<TrainingModeProps> = ({ modules, selectedCareer, on
         }
 
         .animate-spin-slow {
-          animation: spinSlow 12s linear infinite;
+          animation: spinSlow 15s linear infinite;
         }
       `}</style>
     </div>

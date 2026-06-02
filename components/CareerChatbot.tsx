@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Bot, Loader2, X, MessageSquare, Sparkles } from './ui/Icons';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_KEY = "-";
+const API_KEY = "api_key";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 interface Message {
@@ -65,7 +65,7 @@ const CareerChatbot: React.FC = () => {
       setMessages(prev => [...prev, botMessage]);
     } catch (error: any) {
       console.error("Error calling Groq API:", error);
-      const errorMessage = error.message.includes('Failed to fetch') 
+      const errorMessage = error.message.includes('Failed to fetch')
         ? "Network Error: Browser blocked the request (CORS). Please use a CORS proxy or check your internet."
         : `Error: ${error.message}`;
       setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
@@ -101,25 +101,25 @@ const CareerChatbot: React.FC = () => {
           >
             {/* Header */}
             <div className="bg-primary-600 p-6 flex items-center justify-between text-white relative">
-                <div className="absolute top-0 right-0 p-8 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                <div className="flex items-center gap-3 relative z-10">
-                    <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30">
-                        <Bot className="w-7 h-7" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-lg">Career AI Assistant</h3>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                            <span className="text-xs text-white/80 font-medium tracking-wide">Always Online</span>
-                        </div>
-                    </div>
+              <div className="absolute top-0 right-0 p-8 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+              <div className="flex items-center gap-3 relative z-10">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30">
+                  <Bot className="w-7 h-7" />
                 </div>
-                <button 
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-white/20 rounded-xl transition-colors relative z-10"
-                >
-                  <X className="w-6 h-6" />
-                </button>
+                <div>
+                  <h3 className="font-bold text-lg">Career AI Assistant</h3>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <span className="text-xs text-white/80 font-medium tracking-wide">Always Online</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-white/20 rounded-xl transition-colors relative z-10"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </div>
 
             {/* Chat Area */}
@@ -140,7 +140,7 @@ const CareerChatbot: React.FC = () => {
                       "Tips for HR interview rounds",
                       "Latest trends in DevOps"
                     ].map((suggestion, idx) => (
-                      <button 
+                      <button
                         key={idx}
                         onClick={() => setInput(suggestion)}
                         className="text-xs font-medium text-left p-3.5 bg-white border border-gray-100 rounded-2xl text-gray-600 hover:border-primary-400 hover:text-primary-600 transition-all shadow-sm"
@@ -159,23 +159,22 @@ const CareerChatbot: React.FC = () => {
                   key={idx}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-[85%] p-4 rounded-2xl shadow-sm ${
-                    msg.role === 'user' 
-                      ? 'bg-primary-600 text-white rounded-tr-none' 
-                      : 'bg-white border border-gray-100 text-gray-800 rounded-tl-none'
-                  }`}>
+                  <div className={`max-w-[85%] p-4 rounded-2xl shadow-sm ${msg.role === 'user'
+                    ? 'bg-primary-600 text-white rounded-tr-none'
+                    : 'bg-white border border-gray-100 text-gray-800 rounded-tl-none'
+                    }`}>
                     <div className="flex items-center gap-2 mb-1.5 opacity-60">
-                        {msg.role === 'user' ? (
-                            <>
-                                <span className="text-[10px] font-bold uppercase tracking-widest ml-auto">You</span>
-                                <User className="w-3 h-3" />
-                            </>
-                        ) : (
-                            <>
-                                <Bot className="w-3 h-3" />
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Assistant</span>
-                            </>
-                        )}
+                      {msg.role === 'user' ? (
+                        <>
+                          <span className="text-[10px] font-bold uppercase tracking-widest ml-auto">You</span>
+                          <User className="w-3 h-3" />
+                        </>
+                      ) : (
+                        <>
+                          <Bot className="w-3 h-3" />
+                          <span className="text-[10px] font-bold uppercase tracking-widest">Assistant</span>
+                        </>
+                      )}
                     </div>
                     <p className="text-sm leading-relaxed whitespace-pre-wrap font-medium">
                       {msg.content}
@@ -186,14 +185,14 @@ const CareerChatbot: React.FC = () => {
 
               {isLoading && (
                 <div className="flex justify-start">
-                   <div className="bg-white border border-gray-100 p-4 rounded-2xl rounded-tl-none flex items-center gap-3 shadow-sm">
-                      <div className="flex gap-1.5">
-                        <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce"></div>
-                      </div>
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Assistant is thinking...</span>
-                   </div>
+                  <div className="bg-white border border-gray-100 p-4 rounded-2xl rounded-tl-none flex items-center gap-3 shadow-sm">
+                    <div className="flex gap-1.5">
+                      <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-primary-600 rounded-full animate-bounce"></div>
+                    </div>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Assistant is thinking...</span>
+                  </div>
                 </div>
               )}
               <div ref={messagesEndRef} />

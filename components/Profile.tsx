@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
-import { CheckCircle, Briefcase, Mail, Link, Github } from './ui/Icons';
+import { CheckCircle } from './ui/Icons';
+import Input from './ui/Input';
+import Select from './ui/Select';
+import Button from './ui/Button';
+import Card from './ui/Card';
+import Badge from './ui/Badge';
+import Alert from './ui/Alert';
 
 interface ProfileProps {
   userProfile: UserProfile;
@@ -34,142 +40,173 @@ const Profile: React.FC<ProfileProps> = ({ userProfile, onUpdateProfile }) => {
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
   };
-  
-  const InputField = ({ label, name, value, ...props }: any) => (
-    <div>
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        value={value}
-        onChange={handleChange}
-        disabled={!isEditing}
-        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50 dark:focus:ring-primary-900/20 outline-none transition-all disabled:bg-gray-50 dark:disabled:bg-neutral-800 disabled:text-gray-600 dark:disabled:text-gray-400"
-        {...props}
-      />
-    </div>
-  );
+
+  const experienceOptions = [
+    { value: 'Fresher', label: 'Fresher' },
+    { value: '0-1 Years', label: '0-1 Years' },
+    { value: '1-3 Years', label: '1-3 Years' },
+    { value: '3+ Years', label: '3+ Years' },
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
+    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-12">
       <header>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">This information helps personalize your career guidance.</p>
+        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">Profile Settings</h1>
+        <p className="text-neutral-500 dark:text-neutral-400 mt-1">This information helps personalize your career guidance.</p>
       </header>
+
+      {showSuccess && (
+        <Alert variant="success" title="Profile updated successfully!" className="animate-fade-in" />
+      )}
 
       <form onSubmit={handleSave} className="space-y-8">
         {/* Personal Information Card */}
-        <div className="bg-white dark:bg-neutral-800 p-8 rounded-xl border border-gray-100 dark:border-neutral-700 shadow-sm transition-colors duration-300">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Personal Information</h2>
+        <Card className="p-8 dark:bg-neutral-900 dark:border-neutral-800">
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6">Personal Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField label="Full Name" name="name" value={formData.name} type="text" />
-            <InputField label="Email Address" name="email" value={formData.email} type="email" />
+            <Input
+              label="Full Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className="dark:bg-neutral-850"
+            />
+            <Input
+              label="Email Address"
+              name="email"
+              value={formData.email}
+              type="email"
+              onChange={handleChange}
+              disabled={!isEditing}
+              className="dark:bg-neutral-850"
+            />
           </div>
-        </div>
+        </Card>
 
         {/* Professional Details Card */}
-        <div className="bg-white dark:bg-neutral-800 p-8 rounded-xl border border-gray-100 dark:border-neutral-700 shadow-sm transition-colors duration-300">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Professional Details</h2>
+        <Card className="p-8 dark:bg-neutral-900 dark:border-neutral-800">
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6">Professional Details</h2>
           <div className="space-y-6">
-            <InputField label="Professional Headline" name="headline" value={formData.headline} type="text" placeholder="e.g., Aspiring Full Stack Developer" />
+            <Input
+              label="Professional Headline"
+              name="headline"
+              value={formData.headline}
+              onChange={handleChange}
+              disabled={!isEditing}
+              placeholder="e.g., Aspiring Full Stack Developer"
+              className="dark:bg-neutral-850"
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InputField label="Target Role" name="role" value={formData.role} type="text" placeholder="e.g., Software Engineer Fresher" />
-               <div>
-                  <label htmlFor="experienceLevel" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Experience Level</label>
-                  <select
-                    id="experienceLevel"
-                    name="experienceLevel"
-                    value={formData.experienceLevel}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50 dark:focus:ring-primary-900/20 outline-none transition-all disabled:bg-gray-50 dark:disabled:bg-neutral-800 disabled:text-gray-600 dark:disabled:text-gray-400"
-                  >
-                    <option>Fresher</option>
-                    <option>0-1 Years</option>
-                    <option>1-3 Years</option>
-                    <option>3+ Years</option>
-                  </select>
-               </div>
+              <Input
+                label="Target Role"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                disabled={!isEditing}
+                placeholder="e.g., Software Engineer Fresher"
+                className="dark:bg-neutral-850"
+              />
+              <Select
+                label="Experience Level"
+                name="experienceLevel"
+                value={formData.experienceLevel}
+                onChange={handleChange}
+                disabled={!isEditing}
+                options={experienceOptions}
+                className="dark:bg-neutral-850"
+              />
             </div>
           </div>
-        </div>
+        </Card>
         
         {/* Key Skills Card */}
-        <div className="bg-white dark:bg-neutral-800 p-8 rounded-xl border border-gray-100 dark:border-neutral-700 shadow-sm transition-colors duration-300">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Key Skills</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Separate skills with a comma.</p>
+        <Card className="p-8 dark:bg-neutral-900 dark:border-neutral-800">
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Key Skills</h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Separate skills with a comma.</p>
           {isEditing ? (
-             <input
-                type="text"
-                value={skillsInput}
-                onChange={(e) => setSkillsInput(e.target.value)}
-                placeholder="React, Node.js, Python..."
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-gray-900 dark:text-white focus:border-primary-500 focus:ring-4 focus:ring-primary-50 dark:focus:ring-primary-900/20 outline-none transition-all"
-             />
+            <Input
+              name="skills"
+              value={skillsInput}
+              onChange={(e) => setSkillsInput(e.target.value)}
+              placeholder="React, Node.js, Python..."
+              className="dark:bg-neutral-850"
+            />
           ) : (
             <div className="flex flex-wrap gap-2 pt-2">
-              {formData.skills.length > 0 ? formData.skills.map((skill, i) => (
-                <span key={i} className="px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 text-sm font-medium rounded-full border border-primary-100 dark:border-primary-800">
-                  {skill}
-                </span>
-              )) : <p className="text-sm text-gray-400">No skills added yet.</p>}
+              {formData.skills.length > 0 ? (
+                formData.skills.map((skill, i) => (
+                  <Badge key={i} variant="primary">
+                    {skill}
+                  </Badge>
+                ))
+              ) : (
+                <p className="text-sm text-neutral-400">No skills added yet.</p>
+              )}
             </div>
           )}
-        </div>
+        </Card>
         
         {/* Online Presence Card */}
-        <div className="bg-white dark:bg-neutral-800 p-8 rounded-xl border border-gray-100 dark:border-neutral-700 shadow-sm transition-colors duration-300">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Online Presence</h2>
+        <Card className="p-8 dark:bg-neutral-900 dark:border-neutral-800">
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6">Online Presence</h2>
           <div className="space-y-4">
-            <InputField label="LinkedIn URL" name="linkedinUrl" value={formData.linkedinUrl} type="url" placeholder="https://linkedin.com/in/..." />
-            <InputField label="GitHub URL" name="githubUrl" value={formData.githubUrl} type="url" placeholder="https://github.com/..." />
-            <InputField label="Portfolio URL" name="portfolioUrl" value={formData.portfolioUrl} type="url" placeholder="https://your-domain.com" />
+            <Input
+              label="LinkedIn URL"
+              name="linkedinUrl"
+              value={formData.linkedinUrl}
+              type="url"
+              onChange={handleChange}
+              disabled={!isEditing}
+              placeholder="https://linkedin.com/in/..."
+              className="dark:bg-neutral-850"
+            />
+            <Input
+              label="GitHub URL"
+              name="githubUrl"
+              value={formData.githubUrl}
+              type="url"
+              onChange={handleChange}
+              disabled={!isEditing}
+              placeholder="https://github.com/..."
+              className="dark:bg-neutral-850"
+            />
+            <Input
+              label="Portfolio URL"
+              name="portfolioUrl"
+              value={formData.portfolioUrl}
+              type="url"
+              onChange={handleChange}
+              disabled={!isEditing}
+              placeholder="https://your-domain.com"
+              className="dark:bg-neutral-850"
+            />
           </div>
-        </div>
+        </Card>
 
         {/* Action Buttons */}
-        <div className="pt-4 flex items-center justify-between">
-          <div>
-            {showSuccess && (
-                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 animate-fade-in">
-                    <CheckCircle className="w-5 h-5" />
-                    Profile updated successfully!
-                </div>
-            )}
-          </div>
-          <div className="flex items-center gap-4">
-            {isEditing ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData(userProfile);
-                    setSkillsInput(userProfile.skills.join(', '));
-                  }}
-                  className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2 px-5 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary-600/20 active:scale-[0.98]"
-                >
-                  Save Changes
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-medium py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary-600/20 active:scale-[0.98]"
+        <div className="pt-4 flex items-center justify-end gap-4">
+          {isEditing ? (
+            <>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setIsEditing(false);
+                  setFormData(userProfile);
+                  setSkillsInput(userProfile.skills.join(', '));
+                }}
               >
-                Edit Profile
-              </button>
-            )}
-          </div>
+                Cancel
+              </Button>
+              <Button type="submit">
+                Save Changes
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => setIsEditing(true)}>
+              Edit Profile
+            </Button>
+          )}
         </div>
       </form>
     </div>

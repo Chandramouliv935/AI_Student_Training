@@ -29,7 +29,7 @@ const initialModules: TrainingModule[] = [
   { id: 'aptitude', title: 'Aptitude', subtitle: 'Problem-solving skills', status: 'locked', side: 'right', topPos: '46%' },
   { id: 'communication', title: 'Communication', subtitle: 'Workplace scenarios', status: 'locked', side: 'left', topPos: '58%', score: null },
   { id: 'hr_round', title: 'HR Round', subtitle: 'Behavioral prep', status: 'locked', side: 'right', topPos: '70%' },
-  { id: 'goal', title: 'Goal: Hired!', subtitle: 'Congratulations!', status: 'locked', side: 'left', topPos: '85%' },
+  { id: 'goal', title: 'Goal: Hired!', subtitle: 'Congratulations!', status: 'locked', side: 'left', topPos: '95%' },
 ];
 
 const App: React.FC = () => {

@@ -56,5 +56,9 @@ export {
   Moon,
   Send,
   Bot,
-  Loader2
+  Loader2,
+  Zap,
+  Rocket,
+  Activity,
+  Layers
 } from 'lucide-react';

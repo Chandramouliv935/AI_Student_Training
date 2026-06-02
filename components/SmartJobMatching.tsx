@@ -1,47 +1,59 @@
 import React, { useState } from 'react';
-import { Upload, Briefcase, MapPin, ExternalLink, AlertCircle } from './ui/Icons';
+import { Upload, Briefcase, MapPin, ExternalLink, Activity, Zap, Layers, Search } from './ui/Icons';
 import { Job } from '../types';
+import Button from './ui/Button';
+import TextArea from './ui/TextArea';
+import Card from './ui/Card';
+import Badge from './ui/Badge';
+import Alert from './ui/Alert';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
-const getMatchColor = (score: number) => {
-  if (score > 80) return 'bg-green-500';
-  if (score >= 60) return 'bg-orange-500';
-  return 'bg-red-500';
-};
-
 const JobCard: React.FC<{ job: Job }> = ({ job }) => (
-  <div className="relative bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-primary-200 transition-all duration-300 flex flex-col justify-between">
-    <div>
-      <h3 className="font-bold text-gray-900">{job.title}</h3>
-      <p className="text-sm text-gray-600 mt-1">{job.company}</p>
-      <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
-        <MapPin className="w-3 h-3" />
-        <span>{job.location}</span>
+  <Card hoverable className="p-8 flex flex-col justify-between border-2 dark:bg-neutral-900 dark:border-neutral-800 transition-all h-full group relative overflow-hidden">
+    <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-700"></div>
+    <div className="relative z-10">
+      <div className="flex justify-between items-start mb-6">
+        <div className="w-14 h-14 bg-neutral-100 dark:bg-neutral-800 rounded-2xl flex items-center justify-center text-neutral-400 dark:text-neutral-500 group-hover:bg-primary-600 group-hover:text-white group-hover:rotate-6 transition-all duration-500">
+            <Briefcase className="w-7 h-7" />
+        </div>
+        <Badge variant={job.score > 80 ? "success" : (job.score >= 60 ? "primary" : "warning")} className="px-3 py-1 font-black italic tracking-tight">
+            {job.score}% Match
+        </Badge>
+      </div>
+      <h3 className="font-black text-2xl text-neutral-900 dark:text-white leading-none tracking-tight mb-2 group-hover:text-primary-600 transition-colors">{job.title}</h3>
+      <p className="text-sm font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">{job.company}</p>
+      
+      <div className="flex items-center gap-2 text-xs text-neutral-400 dark:text-neutral-500 mt-6 bg-neutral-50 dark:bg-neutral-950/50 w-fit px-3 py-1.5 rounded-lg border dark:border-neutral-800">
+        <MapPin className="w-4 h-4 text-primary-500" />
+        <span className="font-black uppercase tracking-widest">{job.location}</span>
       </div>
     </div>
-    <div className="mt-4">
-      <div className="flex justify-between items-center text-xs mb-1">
-        <span className="font-medium text-gray-700">Match Score</span>
-        <span className="font-semibold text-gray-900">{job.score}%</span>
-      </div>
-      <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
-        <div
-          className={`h-full ${getMatchColor(job.score)} transition-all`}
-          style={{ width: `${Math.min(Math.max(job.score, 0), 100)}%` }}
+    <div className="mt-10 pt-8 border-t-2 border-neutral-50 dark:border-neutral-850 relative z-10">
+      <div className="w-full h-2 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden mb-6 shadow-inner">
+        <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${job.score}%` }}
+            transition={{ duration: 1.5, delay: 0.5 }}
+            className={`h-full transition-all duration-1000 ease-out ${
+                job.score > 80 ? 'bg-success-500 shadow-[0_0_12px_rgba(34,197,94,0.5)]' : 
+                (job.score >= 60 ? 'bg-primary-500 shadow-[0_0_12px_rgba(37,99,235,0.5)]' : 'bg-warning-500 shadow-[0_0_12px_rgba(245,158,11,0.5)]')
+            }`}
         />
       </div>
-      <a
+      <Button
+        as="a"
         href={job.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-4 inline-flex items-center justify-center w-full px-3 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+        className="w-full py-4 text-sm font-black uppercase tracking-widest shadow-xl shadow-primary-500/10"
+        rightIcon={<ExternalLink className="w-4 h-4" />}
       >
-        Apply Now
-        <ExternalLink className="w-4 h-4 ml-2" />
-      </a>
+        Extract Details
+      </Button>
     </div>
-  </div>
+  </Card>
 );
 
 const SmartJobMatching: React.FC = () => {
@@ -55,7 +67,6 @@ const SmartJobMatching: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      // We send the raw file directly to n8n. Clear any pasted text to avoid ambiguity.
       setResumeText('');
       setError(null);
     }
@@ -77,7 +88,6 @@ const SmartJobMatching: React.FC = () => {
         formData.append('text', resumeText.trim());
       }
 
-      // Directly call the n8n webhook URL
       const response = await fetch('http://localhost:5678/webhook/job-match', {
         method: 'POST',
         body: formData,
@@ -89,9 +99,6 @@ const SmartJobMatching: React.FC = () => {
 
       let data = await response.json();
       
-      // Handle both array and object response formats
-      // Format 1: Direct array check
-      // Format 2: { matches: [...] } wrapper check
       let rawJobs: any[] = [];
       
       if (Array.isArray(data)) {
@@ -99,13 +106,8 @@ const SmartJobMatching: React.FC = () => {
       } else if (data && typeof data === 'object' && Array.isArray(data.matches)) {
         rawJobs = data.matches;
       } else {
-        // If data matches the single job structure, wrap it in array
         if (data && typeof data === 'object' && data.title) {
             rawJobs = [data];
-        } else {
-            console.warn('Unexpected API response format:', data);
-            // Don't crash, just show 0 jobs if format is unrecognizable but valid JSON
-            // unless strictly required to error. User said "do not crash when empty jobs returned".
         }
       }
 
@@ -114,15 +116,11 @@ const SmartJobMatching: React.FC = () => {
           title: job.title || 'Unknown Role',
           company: job.company || 'Unknown Company',
           location: job.location || 'Remote',
-          url: job.apply_url || job.url || '#',
+          url: job.apply_url || job.applyUrl || job['Apply URL'] || job['apply url'] || job.applyUrl || job.apply_link || job.job_url || job.job_link || job.url || job.link || '#',
           score: typeof job.match_score === 'number' ? job.match_score : 
                  (typeof job.score === 'number' ? job.score : 0),
         }))
-        .filter(
-          (job: Job) =>
-            job.title && 
-            job.title !== 'Unknown Role' // Basic filter
-        )
+        .filter((job: Job) => job.title && job.title !== 'Unknown Role')
         .sort((a: Job, b: Job) => b.score - a.score);
 
       setJobs(transformedJobs);
@@ -135,121 +133,168 @@ const SmartJobMatching: React.FC = () => {
     }
   };
   
-  const renderResults = () => {
-    switch (status) {
-      case 'loading':
-        return (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-10 h-10 border-4 border-gray-200 border-t-primary-600 rounded-full animate-spin mb-4"></div>
-            <p className="font-semibold text-gray-800">Finding jobs for you...</p>
-            <p className="text-sm text-gray-500">This may take a moment.</p>
-          </div>
-        );
-      case 'success':
-        return (
-          <>
-            {jobs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {jobs.slice(0, Math.max(5, jobs.length)).map((job, index) => (
-                  <JobCard key={`${job.url}-${index}`} job={job} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Briefcase className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-                <h3 className="font-bold text-gray-800">No matching jobs found.</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  No matching jobs found. Try improving your resume skills.
-                </p>
-              </div>
-            )}
-          </>
-        );
-      case 'error':
-        return (
-          <div className="text-center py-12 bg-red-50 border border-red-200 rounded-xl">
-             <AlertCircle className="w-12 h-12 mx-auto text-red-400 mb-4" />
-             <h3 className="font-bold text-red-800">An Error Occurred</h3>
-             <p className="text-sm text-red-600 mt-1 max-w-sm mx-auto">
-               {error ?? 'Unable to analyze resume. Please try another file.'}
-             </p>
-          </div>
-        );
-      case 'idle':
-      default:
-        return (
-          <div className="text-center py-12">
-            <Briefcase className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-            <h3 className="font-bold text-gray-800">Your Future Awaits</h3>
-            <p className="text-sm text-gray-500 mt-1">Upload your resume to find job matches.</p>
-          </div>
-        );
-    }
-  };
-
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Smart Job Matching</h1>
-        <p className="text-gray-500 mt-1">Let AI find the best job opportunities based on your resume.</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Left Column: Input */}
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4 sticky top-8">
-          <div className="relative border border-dashed border-gray-300 rounded-xl p-8 text-center group hover:border-primary-500 transition-colors">
-            <input 
-              type="file" 
-              accept=".pdf,.txt,.doc,.docx"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-            <div className="w-12 h-12 mx-auto bg-gray-100 group-hover:bg-primary-50 rounded-full flex items-center justify-center transition-colors">
-              <Upload className="w-6 h-6 text-gray-400 group-hover:text-primary-600" />
+    <div className="max-w-7xl mx-auto space-y-12 animate-fade-in pb-20 no-select">
+      <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+        <div>
+            <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-primary-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+                    <Search className="w-6 h-6" />
+                </div>
+                <Badge variant="primary" className="font-black">NEURAL MATCHING CORE</Badge>
             </div>
-            <p className="font-medium text-gray-800 mt-2">{file ? file.name : 'Upload your resume'}</p>
-            <p className="text-xs text-gray-500 mt-1">.pdf, .txt or .md files only</p>
-          </div>
+          <h1 className="text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-none italic">Match <span className="text-primary-600">Engine</span></h1>
+          <p className="text-neutral-500 dark:text-neutral-400 text-xl font-bold mt-4 leading-relaxed max-w-2xl">High-fidelity profile comparison against global opportunity vectors using semantic alignment.</p>
+        </div>
+        <div className="flex items-center gap-4 text-xs font-black uppercase tracking-widest text-neutral-600 dark:text-neutral-400 bg-white dark:bg-neutral-900 px-6 py-4 rounded-[1.5rem] border-2 border-neutral-100 dark:border-neutral-800 shadow-xl shadow-neutral-200/20 dark:shadow-black/20 transition-all hover:border-success-500/50 group">
+          <Activity className="w-4 h-4 text-success-500" />
+          Neural Engine V3: Online
+        </div>
+      </header>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
-            <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-500">or paste content</span></div>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        {/* Left Column: Input */}
+        <div className="lg:col-span-5 space-y-8 lg:sticky lg:top-8">
+            <Card className="p-10 border-2 dark:bg-neutral-900 dark:border-neutral-800 relative z-10">
+              <div className="absolute top-0 left-0 w-64 h-64 bg-primary-500/5 dark:bg-primary-500/2 rounded-full blur-3xl -ml-32 -mt-32"></div>
+              
+              <div className="relative border-4 border-dashed border-neutral-100 dark:border-neutral-800 rounded-[2.5rem] p-12 text-center group hover:border-primary-600 transition-all duration-500 dark:bg-neutral-950/30 overflow-hidden">
+                <input 
+                  type="file" 
+                  accept=".pdf,.txt,.doc,.docx"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                />
+                <div className="relative z-10">
+                    <div className="w-20 h-20 mx-auto bg-neutral-50 dark:bg-neutral-900 group-hover:bg-primary-600 group-hover:text-white rounded-[1.5rem] flex items-center justify-center transition-all duration-700 mb-6 shadow-xl shadow-neutral-200/20 dark:shadow-black/40 group-hover:rotate-6">
+                        <Upload className="w-10 h-10" />
+                    </div>
+                    <p className="text-2xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">{file ? file.name : 'Upload Document'}</p>
+                    <p className="text-[10px] text-neutral-400 dark:text-neutral-600 mt-2 uppercase tracking-[0.3em] font-black italic">PDF / DOCX / TEXT Extraction</p>
+                </div>
+                {/* Decorative background element for input */}
+                <div className="absolute inset-0 bg-primary-600/0 group-hover:bg-primary-600/5 transition-colors duration-500 pointer-events-none"></div>
+              </div>
 
-          <textarea
-            className="w-full h-48 p-4 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-50 outline-none resize-y text-sm font-mono text-gray-700"
-            placeholder="Paste your resume content here..."
-            value={resumeText}
-            onChange={(e) => {
-              setResumeText(e.target.value);
-              if (e.target.value.trim()) {
-                setFile(null);
-              }
-            }}
-          ></textarea>
+              <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-neutral-50 dark:border-neutral-850"></div></div>
+                <div className="relative flex justify-center"><span className="px-6 bg-white dark:bg-neutral-900 text-[10px] text-neutral-400 dark:text-neutral-600 font-black uppercase tracking-[0.4em]">Semantic Input</span></div>
+              </div>
 
-          <button
-            onClick={findJobs}
-            disabled={status === 'loading' || (!file && !resumeText.trim())}
-            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-primary-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {status === 'loading' ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span>Searching...</span>
-              </>
-            ) : (
-              <>
-                <Briefcase className="w-5 h-5" />
-                Find Matching Jobs
-              </>
-            )}
-          </button>
+              <TextArea
+                placeholder="Or paste professional summary / skill vectors..."
+                value={resumeText}
+                onChange={(e) => {
+                  setResumeText(e.target.value);
+                  if (e.target.value.trim()) setFile(null);
+                }}
+                className="h-64 p-8 text-lg font-mono rounded-[2rem] border-2 dark:bg-neutral-950/50"
+              />
+
+              <Button
+                onClick={findJobs}
+                disabled={status === 'loading' || (!file && !resumeText.trim())}
+                isLoading={status === 'loading'}
+                className="w-full py-6 text-xl font-black rounded-[2rem] shadow-2xl shadow-primary-600/30 group"
+                leftIcon={!status.includes('loading') ? <Zap className="w-6 h-6 group-hover:rotate-12 transition-transform" /> : undefined}
+              >
+                Execute Alignment
+              </Button>
+            </Card>
         </div>
 
         {/* Right Column: Results */}
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm min-h-[600px]">
-            {renderResults()}
+        <div className="lg:col-span-7">
+            <AnimatePresence mode="wait">
+                {status === 'loading' && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <Card className="p-32 border-2 border-dashed flex flex-col items-center justify-center text-center dark:bg-neutral-900/50 dark:border-neutral-800 h-full min-h-[600px]">
+                        <div className="relative mb-12">
+                            <div className="w-32 h-32 border-8 border-neutral-100 dark:border-neutral-800 rounded-full shadow-2xl"></div>
+                            <div className="w-32 h-32 border-8 border-transparent border-t-primary-600 rounded-full animate-spin absolute inset-0"></div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <Activity className="w-10 h-10 text-primary-600 animate-pulse" />
+                            </div>
+                        </div>
+                        <h3 className="text-4xl font-black text-neutral-900 dark:text-white mb-4 tracking-tight leading-none">Synthesizing Data</h3>
+                        <p className="text-neutral-500 dark:text-neutral-400 text-xl font-bold max-w-sm leading-relaxed">Mapping your neural profile against 140K+ opportunity vectors...</p>
+                    </Card>
+                  </motion.div>
+                )}
+
+                {status === 'success' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-10"
+                  >
+                    <header className="flex items-center justify-between px-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-success-600 text-white rounded-xl flex items-center justify-center shadow-xl">
+                                <Layers className="w-6 h-6" />
+                            </div>
+                            <h2 className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight leading-none italic">
+                                Extracted Matches
+                            </h2>
+                        </div>
+                        <Badge variant="primary" className="px-5 py-2 text-lg font-black italic">{jobs.length} SIGNALS</Badge>
+                    </header>
+                    {jobs.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        {jobs.map((job, index) => (
+                          <JobCard key={`${job.url}-${index}`} job={job} />
+                        ))}
+                      </div>
+                    ) : (
+                      <Card className="p-32 border-2 border-dashed text-center dark:bg-neutral-900 dark:border-neutral-800">
+                        <div className="w-24 h-24 bg-neutral-50 dark:bg-neutral-800 rounded-3xl flex items-center justify-center mx-auto mb-10 shadow-xl opacity-40 grayscale">
+                            <Briefcase className="w-12 h-12" />
+                        </div>
+                        <h3 className="text-3xl font-black text-neutral-900 dark:text-white mb-6 leading-none">Zero Alignment Detected</h3>
+                        <p className="text-xl font-bold text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto leading-relaxed">
+                          Your profile signature requires higher resolution. Add critical skill markers or expand your professional summary.
+                        </p>
+                      </Card>
+                    )}
+                  </motion.div>
+                )}
+
+                {status === 'error' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <Alert variant="error" icon={<Activity className="w-6 h-6" />}>
+                        <p className="font-black uppercase tracking-widest text-[10px] mb-2 text-error-600">Cognitive Fault Detected</p>
+                        <p className="text-lg font-bold opacity-80">{error ?? 'Architectural failure during semantic extraction. Please check core connectivity.'}</p>
+                    </Alert>
+                  </motion.div>
+                )}
+
+                {status === 'idle' && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <Card className="p-32 border-2 border-dashed text-center dark:bg-neutral-900 dark:border-neutral-800 h-full min-h-[600px] flex flex-col items-center justify-center relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-primary-600/[0.02] group-hover:bg-primary-600/[0.04] transition-colors duration-1000"></div>
+                        <div className="w-28 h-28 bg-neutral-100 dark:bg-neutral-800 rounded-[2.5rem] flex items-center justify-center mx-auto mb-12 shadow-2xl relative z-10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
+                            <Activity className="w-14 h-14 text-neutral-400 dark:text-neutral-600 group-hover:text-primary-600" />
+                        </div>
+                        <h3 className="text-5xl font-black text-neutral-900 dark:text-white mb-6 leading-none tracking-tight italic relative z-10 group-hover:text-primary-600 transition-colors">Neural Alignment</h3>
+                        <p className="text-xl font-bold text-neutral-500 dark:text-neutral-400 max-w-md mx-auto leading-relaxed relative z-10">
+                          Bridge your professional trajectory with live market nodes. Submit your data profile to begin the extraction process.
+                        </p>
+                        {/* Decorative scan line */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-500/20 to-transparent animate-scan"></div>
+                    </Card>
+                  </motion.div>
+                )}
+            </AnimatePresence>
         </div>
       </div>
     </div>

@@ -1,43 +1,59 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HrQuestion } from '../types';
-import { CheckCircle, X, Sparkles, Play, UserCheck, ChevronRight } from './ui/Icons';
+import { CheckCircle, X, Sparkles, Play, UserCheck, ChevronRight, ArrowRight, RefreshCw } from './ui/Icons';
+import Button from './ui/Button';
+import Card from './ui/Card';
+import Badge from './ui/Badge';
+import TextArea from './ui/TextArea';
 
 const StartScreen: React.FC<{ onStart: () => void; }> = ({ onStart }) => (
-    <div className="fixed inset-0 z-50 bg-gray-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center p-4">
         <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-xl"
         >
-            <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <UserCheck className="w-8 h-8 text-emerald-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">HR Round Practice</h1>
-            <p className="text-gray-500 mt-3">Prepare for behavioral questions by formulating your own answers.</p>
-            
-            <ul className="text-left space-y-3 my-8 bg-gray-50 p-6 rounded-xl border border-gray-100">
-                <li className="flex items-start gap-3">
-                    <Sparkles className="w-5 h-5 text-gray-500 mt-0.5 shrink-0" />
-                    <span>You will be presented with 5 common HR interview questions.</span>
-                </li>
-                 <li className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-gray-500 mt-0.5 shrink-0" />
-                    <span>Type your answers to practice. There is no time limit for this exercise.</span>
-                </li>
-            </ul>
+            <Card className="p-10 border-2 dark:bg-neutral-900 dark:border-neutral-800">
+                <div className="w-20 h-20 bg-primary-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-primary-500/30">
+                    <UserCheck className="w-10 h-10 text-white" />
+                </div>
+                <h1 className="text-4xl font-black text-neutral-900 dark:text-white text-center tracking-tight">HR Round</h1>
+                <p className="text-neutral-500 dark:text-neutral-400 text-center mt-3 text-lg">Behavioral Pattern & Soft Skill Practice</p>
+                
+                <div className="my-10 space-y-4">
+                    <div className="p-5 bg-neutral-50 dark:bg-neutral-950/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex items-start gap-4">
+                        <div className="w-10 h-10 bg-white dark:bg-neutral-900 rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                            <Sparkles className="w-5 h-5 text-primary-600" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-neutral-900 dark:text-white">Curated Scenarios</p>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">Master 5 critical behavioral questions used by top-tier firms.</p>
+                        </div>
+                    </div>
 
-            <button 
-                onClick={onStart} 
-                className="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-600/20"
-            >
-                <Play className="w-5 h-5" />
-                Start Practice
-            </button>
+                    <div className="p-5 bg-neutral-50 dark:bg-neutral-950/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex items-start gap-4">
+                        <div className="w-10 h-10 bg-white dark:bg-neutral-900 rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                            <CheckCircle className="w-5 h-5 text-primary-600" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-neutral-900 dark:text-white">Free-flow Practice</p>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">No time constraints. Focus on depth and articulation of your story.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <Button 
+                    onClick={onStart} 
+                    className="w-full py-4 text-lg font-black shadow-xl shadow-primary-500/20"
+                    leftIcon={<Play className="w-5 h-5" />}
+                >
+                    Initialize Performance Map
+                </Button>
+            </Card>
         </motion.div>
     </div>
 );
-
 
 interface HrRoundProps {
   onComplete: () => void;
@@ -95,7 +111,12 @@ const HrRound: React.FC<HrRoundProps> = ({ onComplete }) => {
   };
 
   if (loading) {
-    return <div className="fixed inset-0 z-50 bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin"></div></div>;
+    return (
+        <div className="fixed inset-0 z-50 bg-neutral-50 dark:bg-neutral-950 flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-neutral-200 dark:border-neutral-800 border-t-primary-600 rounded-full animate-spin"></div>
+            <p className="text-neutral-500 font-bold uppercase tracking-widest text-[10px]">Syncing Behavioral Core</p>
+        </div>
+    );
   }
 
   if (testState === 'idle') {
@@ -104,31 +125,45 @@ const HrRound: React.FC<HrRoundProps> = ({ onComplete }) => {
 
   if (testState === 'finished') {
     return (
-      <div className="fixed inset-0 z-50 bg-gray-50 flex items-center justify-center p-4 animate-fade-in overflow-y-auto">
+      <div className="fixed inset-0 z-50 bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center p-4 animate-fade-in overflow-y-auto no-scrollbar">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center my-8"
+          initial={{ opacity: 0, scale: 0.95, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="w-full max-w-xl py-8"
         >
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900">Practice Completed!</h1>
-          <p className="text-gray-500 mt-2">Well done! Reflecting on these questions is a great step in your preparation.</p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 mt-8">
-            <button 
-              onClick={resetTest} 
-              className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-emerald-100 text-emerald-600 hover:bg-emerald-50 font-semibold py-3.5 rounded-xl transition-all"
-            >
-              <Sparkles className="w-5 h-5" />
-              Practice Again
-            </button>
-            <button 
-              onClick={onComplete} 
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-600/20"
-            >
-              Return to Roadmap
-            </button>
-          </div>
+          <Card className="p-10 dark:bg-neutral-900 dark:border-neutral-800 text-center">
+            <div className="w-20 h-20 bg-success-100 dark:bg-success-900/30 text-success-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-success-500/10">
+                <CheckCircle className="w-10 h-10" />
+            </div>
+            <h1 className="text-4xl font-black text-neutral-900 dark:text-white tracking-tight">Practice Finalized</h1>
+            <p className="text-neutral-500 dark:text-neutral-400 mt-2 text-lg">Your articulation and narratives have been recorded.</p>
+            
+            <div className="bg-neutral-50 dark:bg-neutral-950 p-8 rounded-[2rem] border border-neutral-100 dark:border-neutral-800 my-10 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/10 dark:bg-primary-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary-500/20 transition-all duration-700"></div>
+                <p className="text-[10px] font-black text-neutral-400 dark:text-neutral-600 uppercase tracking-[0.2em] mb-4">Neural Readiness</p>
+                <p className="text-lg font-bold text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                    Consistent reflection on behavioral questions significantly improves cognitive retrieval during high-pressure sessions.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Button 
+                onClick={resetTest} 
+                variant="outline"
+                className="w-full py-4 text-base font-bold transition-all border-2"
+                leftIcon={<RefreshCw className="w-5 h-5" />}
+              >
+                Re-articulate
+              </Button>
+              <Button 
+                onClick={onComplete} 
+                className="w-full py-4 text-base font-black shadow-xl shadow-primary-500/20"
+                rightIcon={<ArrowRight className="w-5 h-5" />}
+              >
+                Archive Practice
+              </Button>
+            </div>
+          </Card>
         </motion.div>
       </div>
     );
@@ -138,54 +173,61 @@ const HrRound: React.FC<HrRoundProps> = ({ onComplete }) => {
   const progress = (currentQuestionIndex / questions.length) * 100;
   
   return (
-    <div className="fixed inset-0 z-50 bg-gray-50 p-4 lg:p-8 flex flex-col">
-      <header className="w-full max-w-4xl mx-auto flex items-center justify-between gap-6 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-sm"><UserCheck size={16}/></div>
-          <h1 className="font-bold text-lg text-gray-900 hidden sm:block">HR Round Practice</h1>
+    <div className="fixed inset-0 z-50 bg-neutral-50 dark:bg-neutral-950 p-6 lg:p-12 flex flex-col no-select overflow-hidden" style={{ userSelect: 'none' }}>
+      <header className="w-full max-w-5xl mx-auto flex items-center justify-between gap-6 mb-12">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-primary-600 text-white rounded-[1.25rem] flex items-center justify-center font-black text-xl shadow-lg shadow-primary-500/10"><UserCheck size={24}/></div>
+          <div>
+            <h1 className="font-extrabold text-xl text-neutral-900 dark:text-white leading-tight uppercase tracking-tight">Behavioral Core</h1>
+            <Badge variant="primary">LIVE NARRATIVE MAPPING</Badge>
+          </div>
         </div>
       </header>
       
-      <div className="w-full max-w-4xl mx-auto mb-6">
-        <div className="flex justify-between text-sm text-gray-500 mb-2">
-            <span>Progress</span>
-            <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+      <div className="w-full max-w-5xl mx-auto mb-10">
+        <div className="flex justify-between text-[10px] font-black text-neutral-400 dark:text-neutral-600 uppercase tracking-widest mb-3">
+            <span>Progress Meter</span>
+            <span>Scenario {currentQuestionIndex + 1} / {questions.length}</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-neutral-200 dark:bg-neutral-800 rounded-full h-3 overflow-hidden shadow-inner">
             <motion.div 
-                className="bg-emerald-600 h-2 rounded-full" 
+                className="bg-primary-600 h-full rounded-full shadow-[0_0_12px_rgba(37,99,235,0.4)]" 
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             />
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentQuestionIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="w-full max-w-3xl bg-white rounded-2xl shadow-lg border border-gray-100 p-8 md:p-12 my-4"
+            initial={{ opacity: 0, x: 20, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -20, scale: 0.98 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-4xl"
           >
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 leading-tight mb-6">{currentQuestion.question}</h2>
-            <textarea
-              className="w-full h-48 p-4 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 outline-none resize-y text-sm text-gray-700 bg-white"
-              placeholder="Type your answer here..."
-              value={currentAnswer}
-              onChange={(e) => setCurrentAnswer(e.target.value)}
-            />
-            <button
-              onClick={handleNextQuestion}
-              disabled={!currentAnswer.trim()}
-              className="mt-8 w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {currentQuestionIndex === questions.length - 1 ? 'Finish Practice' : 'Next Question'}
-               <ChevronRight className="w-5 h-5"/>
-            </button>
+            <Card className="p-12 md:p-20 dark:bg-neutral-900 dark:border-neutral-800 relative">
+                <h2 className="text-2xl md:text-3xl font-black text-neutral-900 dark:text-white leading-[1.15] mb-8 tracking-tight">{currentQuestion.question}</h2>
+                <TextArea
+                  className="w-full h-64 text-lg p-8 rounded-[2rem] dark:bg-neutral-950/50 border-2"
+                  placeholder="Articulate your narrative here..."
+                  value={currentAnswer}
+                  onChange={(e) => setCurrentAnswer(e.target.value)}
+                />
+                <div className="mt-10 flex justify-end">
+                    <Button
+                        onClick={handleNextQuestion}
+                        disabled={!currentAnswer.trim()}
+                        className="w-full sm:w-auto px-12 py-4 text-lg font-black shadow-2xl shadow-primary-500/20"
+                        rightIcon={<ArrowRight className="w-5 h-5" />}
+                    >
+                        {currentQuestionIndex === questions.length - 1 ? 'Finalize Practice' : 'Archive & Next'}
+                    </Button>
+                </div>
+            </Card>
           </motion.div>
         </AnimatePresence>
       </div>
